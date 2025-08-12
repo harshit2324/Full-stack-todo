@@ -1,6 +1,7 @@
 "use server"
 
 import { prisma } from "@/utils/prisma"
+import { error } from "console";
 import { revalidatePath } from "next/cache";
 
 export async function  createTodo(formData) {
@@ -35,5 +36,35 @@ export async function  changeStatus(formData) {
             isComplete: updateStatus,
         }
     }),
+    revalidatePath("/")
+}
+
+
+export async function  editTodo(formData) {
+    const newtitle = formData.get("newtitle")
+    const inputId = formData.get("inputId")
+
+    if( newtitle == ""){
+    return;
+    }
+
+    await prisma.todo.update({
+        where: {
+            id: inputId,
+        },
+        data:{
+            title: newtitle,
+        }
+    });
+    revalidatePath("/")
+}
+
+export async function DeleteTodo(formData) {
+    const inputId = formData.get("inputId")
+    await prisma.todo.delete({
+        where: {
+            id: inputId,
+        }
+    });
     revalidatePath("/")
 }
